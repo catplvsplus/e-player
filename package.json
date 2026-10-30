@@ -1,0 +1,23 @@
+{
+  "name": "e-player",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "tsc --noEmit",
+    "check:watch": "tsc --noEmit --watch",
+    "build": "reciple build",
+    "start": "reciple start",
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "@reciple/core": "^10.2.0",
+    "@reciple/jsx": "^10.1.0",
+    "discord.js": "^14.27.0",
+    "reciple": "^10.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "nodemon": "^3.1.14",
+    "typescript": "^7.0.2"
+  }
+}
