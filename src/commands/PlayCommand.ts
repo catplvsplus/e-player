@@ -64,6 +64,7 @@ export class PlayCommand extends SlashCommandModule {
                         metadata: {
                             interaction: data.interaction,
                             channel: data.interaction.channel,
+                            skipVotes: new Set<string>(),
                         }
                     },
                 },

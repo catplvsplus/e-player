@@ -40,8 +40,8 @@ export class EPlayer extends BaseModule {
             queue.metadata?.channel?.send(`⛓️‍💥 Disconnected from voice channel.`);
         });
 
-        this.player.events.on('playerSkip', async (queue: GuildQueue<QueueMetadata>, track) => {
-            queue.metadata?.channel?.send(`⏭️ Skipped **[${track.title}](<${track.url}>)**.`);
+        this.player.events.on('playerSkip', async (queue: GuildQueue<QueueMetadata>) => {
+            queue.metadata.skipVotes.clear();
         });
 
         this.player.events.on('playerPause', async (queue: GuildQueue<QueueMetadata>) => {
@@ -61,6 +61,7 @@ export class EPlayer extends BaseModule {
 export interface QueueMetadata {
     interaction: CommandInteraction;
     channel: SendableChannels|null;
+    skipVotes: Set<string>;
 }
 
 export default new EPlayer();
