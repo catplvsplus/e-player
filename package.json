@@ -12,6 +12,7 @@
   "dependencies": {
     "@reciple/core": "^10.2.0",
     "@reciple/jsx": "^10.1.0",
+    "@reciple/modules": "^10.3.2",
     "discord.js": "^14.27.0",
     "reciple": "^10.3.2"
   },

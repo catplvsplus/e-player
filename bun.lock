@@ -7,6 +7,7 @@
       "dependencies": {
         "@reciple/core": "^10.2.0",
         "@reciple/jsx": "^10.1.0",
+        "@reciple/modules": "^10.3.2",
         "discord.js": "^14.27.0",
         "reciple": "^10.3.2",
       },
@@ -53,6 +54,8 @@
     "@reciple/core": ["@reciple/core@10.2.0", "", { "dependencies": { "@reciple/utils": "^10.0.4", "@sapphire/shapeshift": "^4.0.0", "@sapphire/snowflake": "^3.5.3", "qweery": "^0.0.9", "split-string": "^6.1.0", "ts-mixer": "^6.0.4" }, "peerDependencies": { "discord.js": "^14.27.0" } }, "sha512-UmhXe4sZoimM8hmo5Db87H1vgK1qQ8pqvs93J8h255+lPH98Z7dQCsU5zjPcWDEl87mgyWzokLlfMPcZhxIJTw=="],
 
     "@reciple/jsx": ["@reciple/jsx@10.1.0", "", { "peerDependencies": { "discord.js": "^14.26.4" } }, "sha512-uDeSecTO28v+CfGgNsoTw661uLLsOwDW0aj9/6dGz9EZrZSqkoDQ4mDS7EpD5Wkeh9YZSxqqzoBq8FkFPvVpqQ=="],
+
+    "@reciple/modules": ["@reciple/modules@10.3.2", "", { "dependencies": { "@sapphire/snowflake": "^3.5.5" }, "peerDependencies": { "discord.js": "^14.27.0", "reciple": "^10.3.0" } }, "sha512-4/mT4Jq5dMyqYpe5uWot3S4VPmFpNp7zKXctntMeUW34uYflzR75i6Phq81/sk5F2QZMb7++uLXxnGUbMupgeQ=="],
 
     "@reciple/utils": ["@reciple/utils@10.0.4", "", { "dependencies": { "@prtty/prtty": "^1.1.2", "pkg-types": "^2.3.0", "radash": "^12.1.1" } }, "sha512-pQQDBlJ5oeweuVxdqhkeuY74Os6iRxWZlPpvH5+tkRJnp9fFaA82DWy4WRIExi0o35JCgIOdTa52XCmnCDkHVQ=="],
 
