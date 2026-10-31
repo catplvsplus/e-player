@@ -14,8 +14,7 @@ export class RepeatCommand extends SlashCommandModule {
             .setChoices(
                 { name: 'Off', value: QueueRepeatMode.OFF },
                 { name: 'Track', value: QueueRepeatMode.TRACK },
-                { name: 'Queue', value: QueueRepeatMode.QUEUE },
-                { name: 'Autoplay', value: QueueRepeatMode.AUTOPLAY }
+                { name: 'Queue', value: QueueRepeatMode.QUEUE }
             )
         )
         .toJSON();
