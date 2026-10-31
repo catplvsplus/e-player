@@ -11,6 +11,9 @@ import ResumeCommand from './commands/ResumeCommand.js';
 import PauseCommand from './commands/PauseCommand.js';
 import PreviousCommand from './commands/PreviousCommand.js';
 import { YoutubeExtractor } from 'discord-player-youtubei';
+import RepeatCommand from './commands/RepeatCommand.js';
+import UnshuffleCommand from './commands/UnshuffleCommand.js';
+import ShuffleCommand from './commands/ShuffleCommand.js';
 
 export class EPlayer extends BaseModule {
     private _player!: Player;
@@ -26,6 +29,7 @@ export class EPlayer extends BaseModule {
 
                 switch (interaction.customId) {
                     case 'player-repeat':
+                        await RepeatCommand.repeat(interaction);
                         break;
                     case 'player-previous':
                         await PreviousCommand.previous(interaction);
@@ -48,8 +52,21 @@ export class EPlayer extends BaseModule {
                     case 'player-skip':
                         await SkipCommand.skip(interaction);
                         break;
-                    case 'player-shuffle':
+                    case 'player-shuffle': {
+                        const queue = this.player.queues.get(interaction.guildId);
+
+                        if (!queue || !queue.channel) {
+                            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+                            return;
+                        }
+
+                        if (queue.isShuffling) {
+                            await UnshuffleCommand.unshuffle(interaction);
+                        } else {
+                            await ShuffleCommand.shuffle(interaction);
+                        }
                         break;
+                    }
                     default:
                         await interaction.reply({ content: '❌ Unknown button interaction.', flags: [MessageFlags.Ephemeral] });
                         break;
