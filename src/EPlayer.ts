@@ -27,6 +27,13 @@ export class EPlayer extends BaseModule {
             .setExecute(async interaction => {
                 if (!interaction.inCachedGuild()) return;
 
+                const queue = this.player.queues.get<QueueMetadata>(interaction.guildId);
+
+                if (queue?.metadata.nowPlayingMessage?.id !== interaction.message.id) {
+                    await interaction.reply({ content: '❌ This button is not for this queue.', flags: [MessageFlags.Ephemeral] });
+                    return;
+                }
+
                 switch (interaction.customId) {
                     case 'player-repeat':
                         await RepeatCommand.repeat(interaction);
@@ -34,9 +41,7 @@ export class EPlayer extends BaseModule {
                     case 'player-previous':
                         await PreviousCommand.previous(interaction);
                         break;
-                    case 'player-toggle-pause': {
-                        const queue = this.player.queues.get(interaction.guildId);
-
+                    case 'player-toggle-pause':
                         if (!queue || !queue.channel) {
                             await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
                             return;
@@ -48,13 +53,10 @@ export class EPlayer extends BaseModule {
                             await PauseCommand.pause(interaction);
                         }
                         break;
-                    }
                     case 'player-skip':
                         await SkipCommand.skip(interaction);
                         break;
-                    case 'player-shuffle': {
-                        const queue = this.player.queues.get(interaction.guildId);
-
+                    case 'player-shuffle':
                         if (!queue || !queue.channel) {
                             await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
                             return;
@@ -66,7 +68,6 @@ export class EPlayer extends BaseModule {
                             await ShuffleCommand.shuffle(interaction);
                         }
                         break;
-                    }
                     default:
                         await interaction.reply({ content: '❌ Unknown button interaction.', flags: [MessageFlags.Ephemeral] });
                         break;
