@@ -61,6 +61,14 @@ export class PlayCommand extends SlashCommandModule {
             return;
         }
 
+        if (!member.voice.channel.joinable) {
+            await data.interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ I cannot join your voice channel. Please check my permissions.',
+                color: Colors.Red
+            }));
+            return;
+        }
+
         await data.interaction.deferReply();
 
         try {

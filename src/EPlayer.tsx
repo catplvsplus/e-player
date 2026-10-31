@@ -1,4 +1,4 @@
-import { AppleMusicExtractor, AttachmentExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
+import { SoundCloudExtractor } from '@discord-player/extractor';
 import type { Logger } from '@prtty/print';
 import { Player, type GuildQueue } from 'discord-player';
 import { MessageFlags, MessageFlagsBitField, resolveColor, type CommandInteraction, type SendableChannels } from 'discord.js';
@@ -8,6 +8,8 @@ import type { ColorResolvable, GuildMember, InteractionEditReplyOptions, Interac
 import { YoutubeExtractor } from 'discord-player-youtubei';
 import type { RepliableInteraction } from 'discord.js';
 import { Bold, CodeBlock, Container, Hyperlink, TextDisplay } from '@reciple/jsx';
+import { SpotifyExtractor } from 'discord-player-spotify';
+import { AppleMusicExtractor } from 'discord-player-applemusic';
 import { Colors } from 'discord.js';
 
 export class EPlayer extends BaseModule {
@@ -51,8 +53,6 @@ export class EPlayer extends BaseModule {
             oauthToken: process.env.SOUNDCLOUD_OAUTH_TOKEN,
             proxy: process.env.SOUNDCLOUD_PROXY
         });
-
-        await this.player.extractors.register(AttachmentExtractor, {});
     }
 
     public async onReady(): Promise<void> {
@@ -60,8 +60,17 @@ export class EPlayer extends BaseModule {
         this.player.on('error', this.logger.error);
 
         this.player.events.on('playerError', (queue: GuildQueue<QueueMetadata>, error, track) => {
+            this.logger.error(`An error occurred while playing the track ${track.title} in guild ${queue.guild.id}:`, error);
             queue.metadata?.channel?.send(this.createSimpleContainerMessage({
                 content: `❌ An error occurred while playing the track ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}:\n${<CodeBlock>{error.message}</CodeBlock>}`,
+                color: Colors.Red
+            }));
+        });
+
+        this.player.events.on('error', (queue: GuildQueue<QueueMetadata>, error) => {
+            this.logger.error(`An error occurred in the player for guild ${queue.guild.id}:`, error);
+            queue.metadata?.channel?.send(this.createSimpleContainerMessage({
+                content: `❌ An error occurred in the player:\n${<CodeBlock>{error.message}</CodeBlock>}`,
                 color: Colors.Red
             }));
         });
