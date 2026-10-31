@@ -5,15 +5,7 @@ import { hyperlink, MessageFlags, MessageFlagsBitField, resolveColor, type Comma
 import { BaseModule } from 'reciple';
 import NowPlayingCommand from './commands/NowPlayingCommand.js';
 import type { ColorResolvable, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessageEditOptions, MessageFlagsResolvable, MessageReplyOptions, PermissionResolvable } from 'discord.js';
-import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
-import SkipCommand from './commands/SkipCommand.js';
-import ResumeCommand from './commands/ResumeCommand.js';
-import PauseCommand from './commands/PauseCommand.js';
-import PreviousCommand from './commands/PreviousCommand.js';
 import { YoutubeExtractor } from 'discord-player-youtubei';
-import RepeatCommand from './commands/RepeatCommand.js';
-import UnshuffleCommand from './commands/UnshuffleCommand.js';
-import ShuffleCommand from './commands/ShuffleCommand.js';
 import type { RepliableInteraction } from 'discord.js';
 import { Container, TextDisplay } from '@reciple/jsx';
 
@@ -21,62 +13,6 @@ export class EPlayer extends BaseModule {
     private _player!: Player;
 
     public logger: Logger = useLogger().clone({ label: 'EPlayer' });
-
-    public interactions: InteractionListenerData[] = [
-        new InteractionListenerBuilder()
-            .setType(InteractionListenerType.Button)
-            .setFilter(i => i.customId.startsWith('player'))
-            .setExecute(async interaction => {
-                if (!interaction.inCachedGuild()) return;
-
-                const queue = this.player.queues.get<QueueMetadata>(interaction.guildId);
-
-                if (queue?.metadata.nowPlayingMessage?.id !== interaction.message.id) {
-                    await interaction.reply({ content: '❌ This button is not for this queue.', flags: [MessageFlags.Ephemeral] });
-                    return;
-                }
-
-                switch (interaction.customId) {
-                    case 'player-repeat':
-                        await RepeatCommand.repeat(interaction);
-                        break;
-                    case 'player-previous':
-                        await PreviousCommand.previous(interaction);
-                        break;
-                    case 'player-toggle-pause':
-                        if (!queue || !queue.channel) {
-                            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
-                            return;
-                        }
-
-                        if (queue.node.isPaused()) {
-                            await ResumeCommand.resume(interaction);
-                        } else {
-                            await PauseCommand.pause(interaction);
-                        }
-                        break;
-                    case 'player-skip':
-                        await SkipCommand.skip(interaction);
-                        break;
-                    case 'player-shuffle':
-                        if (!queue || !queue.channel) {
-                            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
-                            return;
-                        }
-
-                        if (queue.isShuffling) {
-                            await UnshuffleCommand.unshuffle(interaction);
-                        } else {
-                            await ShuffleCommand.shuffle(interaction);
-                        }
-                        break;
-                    default:
-                        await interaction.reply({ content: '❌ Unknown button interaction.', flags: [MessageFlags.Ephemeral] });
-                        break;
-                }
-            })
-            .toJSON()
-    ];
 
     public get player(): Player {
         if (!this._player) {
