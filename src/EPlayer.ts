@@ -10,6 +10,7 @@ import SkipCommand from './commands/SkipCommand.js';
 import ResumeCommand from './commands/ResumeCommand.js';
 import PauseCommand from './commands/PauseCommand.js';
 import PreviousCommand from './commands/PreviousCommand.js';
+import { YoutubeExtractor } from 'discord-player-youtubei';
 
 export class EPlayer extends BaseModule {
     private _player!: Player;
@@ -72,6 +73,7 @@ export class EPlayer extends BaseModule {
 
         this._player = new Player(this.client as any);
 
+        await this.player.extractors.register(YoutubeExtractor, {});
         await this.player.extractors.loadMulti(DefaultExtractors);
     }
 

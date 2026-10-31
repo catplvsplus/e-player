@@ -25,7 +25,11 @@ export class PlayCommand extends SlashCommandModule {
 
                 const query = interaction.options.getString('query', true);
                 const results = await EPlayer.player
-                    .search(query, { requestedBy: interaction.user as any })
+                    .search(query, {
+                        searchEngine: 'youtube',
+                        fallbackSearchEngine: 'auto',
+                        requestedBy: interaction.user as any
+                    })
                     .catch(() => null);
 
                 await interaction.respond(
@@ -59,6 +63,8 @@ export class PlayCommand extends SlashCommandModule {
                 member.voice.channel as any,
                 query,
                 {
+                    searchEngine: 'youtube',
+                    fallbackSearchEngine: 'auto',
                     requestedBy: data.interaction.user as any,
                     nodeOptions: {
                         metadata: {

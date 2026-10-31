@@ -18,14 +18,14 @@ export class QueueCommand extends SlashCommandModule {
     }
 
     public async createQueuePagination(interaction: RepliableInteraction<'cached'>): Promise<void> {
-        await interaction.deferReply();
-
         const queue = EPlayer.player.queues.get(interaction.guildId);
 
         if (!queue || queue?.isEmpty()) {
             await interaction.reply({ content: '❌ There is no song in the queue.', flags: [MessageFlags.Ephemeral] });
             return;
         }
+
+        await interaction.deferReply();
 
         const pages: Track[][] = queue.tracks
             .toArray()
