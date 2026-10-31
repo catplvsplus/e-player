@@ -1,4 +1,4 @@
-import { InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
+import { InteractionContextType, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 
@@ -26,7 +26,10 @@ export class ShuffleCommand extends SlashCommandModule {
 
         queue.enableShuffle();
 
-        await interaction.reply({ content: `🔀 Shuffled **${queue.size}** songs in queue.`, flags: [MessageFlags.Ephemeral] });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `🔀 Shuffled songs in queue.`
+        }));
+
         await EPlayer.updateNowPlayingMessage(queue);
     }
 }

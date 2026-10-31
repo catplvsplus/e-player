@@ -1,6 +1,7 @@
-import { hyperlink, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
+import { InteractionContextType, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
+import { Bold, Hyperlink } from '@reciple/jsx';
 
 export class ResumeCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -20,19 +21,17 @@ export class ResumeCommand extends SlashCommandModule {
 
         const hasConnection = await EPlayer.checkQueueConnection({ queue, interaction });
         const userInVoiceChannel = await EPlayer.checkUserInVoiceChannel({ queue, interaction });
+        const isPlaying = await EPlayer.checkQueuePlaying({ queue, interaction });
 
-        if (!hasConnection || !userInVoiceChannel) return;
+        if (!hasConnection || !userInVoiceChannel || !isPlaying || !queue?.channel) return;
 
-        const track = queue!.currentTrack;
+        const track = queue.currentTrack!;
 
-        if (!track) {
-            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        queue.node.pause();
 
-        queue?.node.resume();
-
-        await interaction.reply({ content: `▶️ Resumed playing **${hyperlink(track.title, track.url)}**`, flags: [MessageFlags.Ephemeral] });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `▶️ Resumed ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}`
+        }));
     }
 }
 

@@ -1,6 +1,6 @@
-import { ButtonStyle, ComponentType, InteractionContextType, MessageFlags, type InteractionEditReplyOptions, type RepliableInteraction } from 'discord.js';
+import { ButtonStyle, ComponentType, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
-import EPlayer from '../EPlayer.js';
+import EPlayer, { type MessageOptions } from '../EPlayer.js';
 import type { Track } from 'discord-player';
 import { ActionRow, Button, Container, Heading, HideLinkEmbed, Hyperlink, LineBreak, SubText, TextDisplay } from '@reciple/jsx';
 
@@ -70,7 +70,7 @@ export class QueueCommand extends SlashCommandModule {
         });
     }
 
-    public createQueueMessageComponents(pages: Track[][], currentPage: number, disabled: boolean = false): InteractionEditReplyOptions {
+    public createQueueMessageComponents(pages: Track[][], currentPage: number, disabled: boolean = false): MessageOptions {
         return {
             flags: [MessageFlags.IsComponentsV2],
             components: <>

@@ -1,7 +1,8 @@
-import { InteractionContextType, MessageFlags } from 'discord.js';
+import { InteractionContextType } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
+import { Bold, Hyperlink } from '@reciple/jsx';
 
 export class PauseCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -21,12 +22,17 @@ export class PauseCommand extends SlashCommandModule {
 
         const hasConnection = await EPlayer.checkQueueConnection({ queue, interaction });
         const userInVoiceChannel = await EPlayer.checkUserInVoiceChannel({ queue, interaction });
+        const isPlaying = await EPlayer.checkQueuePlaying({ queue, interaction });
 
-        if (!hasConnection || !userInVoiceChannel || !queue?.channel) return;
+        if (!hasConnection || !userInVoiceChannel || !isPlaying || !queue?.channel) return;
+
+        const track = queue.currentTrack!;
 
         queue.node.pause();
 
-        await interaction.reply({ content: `⏸️ Paused **[${queue.currentTrack?.title}](<${queue.currentTrack?.url}>)**.`, flags: [MessageFlags.Ephemeral] });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `⏸️ Paused ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}`
+        }));
     }
 }
 

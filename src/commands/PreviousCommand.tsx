@@ -1,7 +1,8 @@
-import { InteractionContextType } from 'discord.js';
+import { InteractionContextType, MessageFlags } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
+import { Bold, Hyperlink } from '@reciple/jsx';
 
 export class PreviousCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -26,6 +27,13 @@ export class PreviousCommand extends SlashCommandModule {
 
         if (!hasConnection || !userInVoiceChannel || !queue?.channel) return;
 
+        const previousTrack = queue.history.previousTrack;
+
+        if (!previousTrack) {
+            await interaction.reply({ content: `⏪ There is no previous song in the queue.`, flags: [MessageFlags.Ephemeral] });
+            return;
+        }
+
         if (!hasPermission) {
             queue.metadata?.previousVotes.add(member.id);
 
@@ -38,8 +46,10 @@ export class PreviousCommand extends SlashCommandModule {
             }
         }
 
-        queue.node.skip();
-        await interaction.reply({ content: `⏪ Played previous song **[${queue.history.previousTrack?.title}](<${queue.history.previousTrack?.url}>)**.` });
+        await queue.history.previous();
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `⏪ Playing previous song ${<Bold><Hyperlink url={previousTrack.url}>{previousTrack.title}</Hyperlink></Bold>}`
+        }));
     }
 }
 

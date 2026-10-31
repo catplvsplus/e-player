@@ -25,7 +25,9 @@ export class StopCommand extends SlashCommandModule {
         if (!hasConnection || !userInVoiceChannel || !hasPermission) return;
 
         queue?.node.stop();
-        await interaction.reply({ content: `⏹️ Stopped playing.` });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `⏹️ Stopped playing.`
+        }));
     }
 }
 

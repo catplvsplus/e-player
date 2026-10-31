@@ -1,7 +1,8 @@
-import { hyperlink, InteractionContextType, type RepliableInteraction } from 'discord.js';
+import { InteractionContextType, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
+import { Bold, Hyperlink } from '@reciple/jsx';
 
 export class SkipToCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -72,7 +73,9 @@ export class SkipToCommand extends SlashCommandModule {
             return;
         }
 
-        await interaction.reply({ content: `⏩ Skipped to **${hyperlink(track.title, track.url)}**` });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `⏩ Skipped to ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}`
+        }));
     }
 }
 

@@ -1,7 +1,8 @@
 import { QueueRepeatMode } from 'discord-player';
-import { inlineCode, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
+import { InteractionContextType, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
+import { Bold } from '@reciple/jsx';
 
 export class RepeatCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -38,7 +39,10 @@ export class RepeatCommand extends SlashCommandModule {
 
         queue.setRepeatMode(newMode);
 
-        await interaction.reply({ content: `✅ Repeat mode set to ${inlineCode(this.getRepeatModeName(newMode))}.`, flags: [MessageFlags.Ephemeral] });
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `${this.getRepeatModeEmoji(newMode)} Repeat mode set to ${<Bold>{this.getRepeatModeName(newMode)}</Bold>}.`
+        }));
+
         await EPlayer.updateNowPlayingMessage(queue);
     }
 
@@ -64,6 +68,19 @@ export class RepeatCommand extends SlashCommandModule {
                 return 'Queue';
             case QueueRepeatMode.AUTOPLAY:
                 return 'Autoplay';
+        }
+    }
+
+    public getRepeatModeEmoji(mode: QueueRepeatMode): string {
+        switch (mode) {
+            case QueueRepeatMode.OFF:
+                return '🔁';
+            case QueueRepeatMode.TRACK:
+                return '🔂';
+            case QueueRepeatMode.QUEUE:
+                return '🔁';
+            case QueueRepeatMode.AUTOPLAY:
+                return '♾️';
         }
     }
 }

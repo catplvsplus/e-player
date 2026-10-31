@@ -2,6 +2,7 @@ import { InteractionContextType } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
+import { Bold, Hyperlink } from '@reciple/jsx';
 
 export class SkipCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -26,6 +27,13 @@ export class SkipCommand extends SlashCommandModule {
 
         if (!hasConnection || !userInVoiceChannel || !queue?.channel) return;
 
+        const nextTrack = queue.history.nextTrack;
+
+        if (!nextTrack) {
+            await interaction.reply({ content: `⏩ No next song in queue to skip to.` });
+            return;
+        }
+
         if (!hasPermission) {
             queue.metadata?.skipVotes.add(member.id);
 
@@ -38,8 +46,10 @@ export class SkipCommand extends SlashCommandModule {
             }
         }
 
-        queue.node.skip();
-        await interaction.reply({ content: `⏩ Skipped **[${queue.currentTrack?.title}](<${queue.currentTrack?.url}>)**.` });
+        await queue.history.next();
+        await interaction.reply(EPlayer.createSimpleContainerMessage({
+            content: `⏩ Playing next song ${<Bold><Hyperlink url={nextTrack.url}>{nextTrack.title}</Hyperlink></Bold>}`
+        }));
     }
 }
 

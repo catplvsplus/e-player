@@ -1,10 +1,10 @@
 import { AppleMusicExtractor, AttachmentExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
 import type { Logger } from '@prtty/print';
 import { Player, type GuildQueue } from 'discord-player';
-import { hyperlink, MessageFlags, type CommandInteraction, type SendableChannels } from 'discord.js';
+import { hyperlink, MessageFlags, MessageFlagsBitField, resolveColor, type CommandInteraction, type SendableChannels } from 'discord.js';
 import { BaseModule } from 'reciple';
 import NowPlayingCommand from './commands/NowPlayingCommand.js';
-import type { GuildMember, Message, PermissionResolvable } from 'discord.js';
+import type { ColorResolvable, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessageEditOptions, MessageFlagsResolvable, MessageReplyOptions, PermissionResolvable } from 'discord.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
 import SkipCommand from './commands/SkipCommand.js';
 import ResumeCommand from './commands/ResumeCommand.js';
@@ -15,6 +15,7 @@ import RepeatCommand from './commands/RepeatCommand.js';
 import UnshuffleCommand from './commands/UnshuffleCommand.js';
 import ShuffleCommand from './commands/ShuffleCommand.js';
 import type { RepliableInteraction } from 'discord.js';
+import { Container, TextDisplay } from '@reciple/jsx';
 
 export class EPlayer extends BaseModule {
     private _player!: Player;
@@ -222,6 +223,18 @@ export class EPlayer extends BaseModule {
         return false;
     }
 
+    public async checkQueuePlaying({ queue, interaction, replyToInteraction }: CheckOptions): Promise<boolean> {
+        if (queue && queue.isPlaying() && queue.currentTrack) {
+            return true;
+        }
+
+        if (replyToInteraction !== false) {
+            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+        }
+
+        return false;
+    }
+
     public async setVoiceChannelStatus(channelId: string, status: string|null): Promise<boolean> {
         const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
             headers: {
@@ -240,6 +253,19 @@ export class EPlayer extends BaseModule {
 
         return true;
     }
+
+    public createSimpleContainerMessage({ content, color, flags }: SimpleContainerMessageOptions): MessageOptions {
+        return {
+            flags: new MessageFlagsBitField([MessageFlags.Ephemeral, MessageFlags.IsComponentsV2]).add(flags ?? []).bitfield,
+            components: <>
+                <Container accentColor={color && resolveColor(color)}>
+                    <TextDisplay>
+                        {content}
+                    </TextDisplay>
+                </Container>
+            </>
+        };
+    }
 }
 
 export interface QueueMetadata {
@@ -255,5 +281,13 @@ export interface CheckOptions {
     interaction: RepliableInteraction<'cached'>;
     replyToInteraction?: boolean;
 }
+
+export interface SimpleContainerMessageOptions {
+    content: string;
+    color?: ColorResolvable;
+    flags?: MessageFlagsResolvable;
+}
+
+export type MessageOptions = MessageReplyOptions & MessageEditOptions & InteractionEditReplyOptions & InteractionReplyOptions;
 
 export default new EPlayer();

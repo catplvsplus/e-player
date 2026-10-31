@@ -1,8 +1,9 @@
-import { ButtonStyle, Colors, InteractionContextType, MessageFlags, MessageFlagsBitField, type InteractionEditReplyOptions, type InteractionReplyOptions, type MessageEditOptions, type MessageReplyOptions } from 'discord.js';
+import { ButtonStyle, Colors, InteractionContextType, MessageFlags, MessageFlagsBitField } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
-import EPlayer, { type QueueMetadata } from '../EPlayer.js';
+import EPlayer, { type MessageOptions, type QueueMetadata } from '../EPlayer.js';
 import { QueueRepeatMode, type GuildQueue, type PlayerProgressbarOptions, type Track } from 'discord-player';
 import { ActionRow, Button, Container, Heading, Hyperlink, LineBreak, Section, SubText, TextDisplay, Thumbnail } from '@reciple/jsx';
+import RepeatCommand from './RepeatCommand.js';
 
 export class NowPlayingCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -24,7 +25,7 @@ export class NowPlayingCommand extends SlashCommandModule {
         await data.interaction.reply(this.createNowPlayingMessageComponents({ queue }));
     }
 
-    public createNowPlayingMessageComponents(options: NowPlayingMessageComponentsOptions): MessageReplyOptions & MessageEditOptions & InteractionEditReplyOptions & InteractionReplyOptions {
+    public createNowPlayingMessageComponents(options: NowPlayingMessageComponentsOptions): MessageOptions {
         const flags: MessageFlagsBitField = new MessageFlagsBitField(MessageFlags.IsComponentsV2);
         const track: Track = options.track ?? options.queue.currentTrack!;
 
@@ -66,7 +67,7 @@ export class NowPlayingCommand extends SlashCommandModule {
                             <Button
                                 style={options.queue.repeatMode ? ButtonStyle.Primary : ButtonStyle.Secondary} 
                                 customId="player-repeat"
-                                emoji={options.queue.repeatMode === QueueRepeatMode.TRACK ? '🔂' : '🔁'}
+                                emoji={RepeatCommand.getRepeatModeEmoji(options.queue.repeatMode ?? QueueRepeatMode.OFF)}
                             />
                             <Button
                                 style={ButtonStyle.Primary}
