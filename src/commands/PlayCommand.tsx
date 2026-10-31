@@ -68,8 +68,6 @@ export class PlayCommand extends SlashCommandModule {
                 member.voice.channel as any,
                 query,
                 {
-                    searchEngine: QueryType.YOUTUBE,
-                    fallbackSearchEngine: QueryType.AUTO,
                     requestedBy: data.interaction.user as any,
                     nodeOptions: {
                         metadata: {
