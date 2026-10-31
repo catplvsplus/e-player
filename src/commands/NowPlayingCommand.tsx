@@ -1,4 +1,4 @@
-import { ButtonStyle, InteractionContextType, MessageFlags, MessageFlagsBitField, type InteractionEditReplyOptions, type InteractionReplyOptions, type MessageEditOptions, type MessageReplyOptions } from 'discord.js';
+import { ButtonStyle, Colors, InteractionContextType, MessageFlags, MessageFlagsBitField, type InteractionEditReplyOptions, type InteractionReplyOptions, type MessageEditOptions, type MessageReplyOptions } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer, { type QueueMetadata } from '../EPlayer.js';
 import { QueueRepeatMode, type GuildQueue, type PlayerProgressbarOptions, type Track } from 'discord-player';
@@ -35,7 +35,7 @@ export class NowPlayingCommand extends SlashCommandModule {
         return {
             flags: flags.bitfield,
             components: <>
-                <Container>
+                <Container accentColor={Colors.Blurple}>
                     <TextDisplay>
                         <Heading level={2}>Now Playing</Heading>
                     </TextDisplay>

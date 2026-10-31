@@ -150,7 +150,7 @@ export class EPlayer extends BaseModule {
 
     public async onDisable(): Promise<void> {
         for (const [id, queue] of this.player.queues.cache) {
-            queue.connection?.destroy();
+            queue.connection?.disconnect();
         }
 
         this.player.destroy();
