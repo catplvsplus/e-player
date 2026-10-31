@@ -1,7 +1,7 @@
 import { ButtonStyle, ComponentType, InteractionContextType, MessageFlags, type InteractionEditReplyOptions, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
-import EPlayer, { type QueueMetadata } from '../EPlayer.js';
-import type { GuildQueue, Track } from 'discord-player';
+import EPlayer from '../EPlayer.js';
+import type { Track } from 'discord-player';
 import { ActionRow, Button, Container, Heading, HideLinkEmbed, Hyperlink, LineBreak, SubText, TextDisplay } from '@reciple/jsx';
 
 export class QueueCommand extends SlashCommandModule {
@@ -14,18 +14,18 @@ export class QueueCommand extends SlashCommandModule {
     public async execute(data: SlashCommand.ExecuteData): Promise<void> {
         if (!data.interaction.inCachedGuild()) return;
 
-        const queue = EPlayer.player.queues.get(data.interaction.guildId);
-
-        if (!queue || queue?.isEmpty()) {
-            await data.interaction.reply({ content: '❌ There is no song in the queue.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
-
-        await this.createQueuePagination(data.interaction, queue);
+        await this.createQueuePagination(data.interaction);
     }
 
-    public async createQueuePagination(interaction: RepliableInteraction, queue: GuildQueue<QueueMetadata>): Promise<void> {
+    public async createQueuePagination(interaction: RepliableInteraction<'cached'>): Promise<void> {
         await interaction.deferReply();
+
+        const queue = EPlayer.player.queues.get(interaction.guildId);
+
+        if (!queue || queue?.isEmpty()) {
+            await interaction.reply({ content: '❌ There is no song in the queue.', flags: [MessageFlags.Ephemeral] });
+            return;
+        }
 
         const pages: Track[][] = queue.tracks
             .toArray()

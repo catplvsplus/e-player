@@ -1,4 +1,4 @@
-import { InteractionContextType, MessageFlags } from 'discord.js';
+import { InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 
@@ -12,22 +12,26 @@ export class ResumeCommand extends SlashCommandModule {
     public async execute(data: SlashCommand.ExecuteData): Promise<void> {
         if (!data.interaction.inCachedGuild()) return;
 
-        const queue = EPlayer.player.queues.get(data.interaction.guildId);
-        const member = data.interaction.member;
+        await this.resume(data.interaction);
+    }
+
+    public async resume(interaction: RepliableInteraction<'cached'>): Promise<void> {
+        const queue = EPlayer.player.queues.get(interaction.guildId);
+        const member = interaction.member;
 
         if (!queue || !queue.channel) {
-            await data.interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
             return;
         }
 
         if (!member.voice.channel || member.voice.channelId !== queue.channel.id) {
-            await data.interaction.reply({ content: '❌ You need to be in a voice channel to resume music.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply({ content: '❌ You need to be in a voice channel to resume music.', flags: [MessageFlags.Ephemeral] });
             return;
         }
 
         queue.node.resume();
 
-        await data.interaction.reply({ content: `▶️ Resumed **[${queue.currentTrack?.title}](<${queue.currentTrack?.url}>)**.`, flags: [MessageFlags.Ephemeral] });
+        await interaction.reply({ content: `▶️ Resumed **[${queue.currentTrack?.title}](<${queue.currentTrack?.url}>)**.`, flags: [MessageFlags.Ephemeral] });
     }
 }
 
