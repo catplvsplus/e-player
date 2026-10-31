@@ -1,4 +1,4 @@
-import { AppleMusicExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
+import { AppleMusicExtractor, AttachmentExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
 import type { Logger } from '@prtty/print';
 import { Player, type GuildQueue } from 'discord-player';
 import { hyperlink, MessageFlags, type CommandInteraction, type SendableChannels } from 'discord.js';
@@ -111,7 +111,9 @@ export class EPlayer extends BaseModule {
             clientId: process.env.SOUNDCLOUD_CLIENT_ID,
             oauthToken: process.env.SOUNDCLOUD_OAUTH_TOKEN,
             proxy: process.env.SOUNDCLOUD_PROXY
-        })
+        });
+
+        await this.player.extractors.register(AttachmentExtractor, {});
     }
 
     public async onReady(): Promise<void> {
