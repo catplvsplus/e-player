@@ -36,7 +36,7 @@ export class ShuffleCommand extends SlashCommandModule {
 
         queue.enableShuffle();
 
-        await interaction.reply({ content: `🔀 Shuffled **${queue.size}** songs in queue.` });
+        await interaction.reply({ content: `🔀 Shuffled **${queue.size}** songs in queue.`, flags: [MessageFlags.Ephemeral] });
         await EPlayer.updateNowPlayingMessage(queue);
     }
 }

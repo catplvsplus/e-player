@@ -49,7 +49,7 @@ export class RepeatCommand extends SlashCommandModule {
 
         queue.setRepeatMode(newMode);
 
-        await interaction.reply({ content: `✅ Repeat mode set to ${inlineCode(this.getRepeatModeName(newMode))}.` });
+        await interaction.reply({ content: `✅ Repeat mode set to ${inlineCode(this.getRepeatModeName(newMode))}.`, flags: [MessageFlags.Ephemeral] });
         await EPlayer.updateNowPlayingMessage(queue);
     }
 

@@ -36,7 +36,7 @@ export class UnshuffleCommand extends SlashCommandModule {
 
         queue.disableShuffle();
 
-        await interaction.reply({ content: `🔀 Unshuffled **${queue.size}** songs in queue.` });
+        await interaction.reply({ content: `🔀 Unshuffled **${queue.size}** songs in queue.`, flags: [MessageFlags.Ephemeral] });
         await EPlayer.updateNowPlayingMessage(queue);
     }
 }
