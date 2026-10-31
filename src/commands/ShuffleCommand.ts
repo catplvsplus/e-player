@@ -17,22 +17,12 @@ export class ShuffleCommand extends SlashCommandModule {
 
     public async shuffle(interaction: RepliableInteraction<'cached'>): Promise<void> {
         const queue = EPlayer.player.queues.get(interaction.guildId);
-        const member = interaction.member;
 
-        if (!queue || !queue.channel) {
-            await interaction.reply({ content: '❌ There is no queue in this server.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        const hasConnection = await EPlayer.checkQueueConnection({ queue, interaction });
+        const userInVoiceChannel = await EPlayer.checkUserInVoiceChannel({ queue, interaction });
+        const hasPermission = await EPlayer.checkUserHasPermission({ queue, interaction, permission: 'MuteMembers' });
 
-        if (!member.voice.channel || member.voice.channelId !== queue.channel.id) {
-            await interaction.reply({ content: '❌ You need to be in a voice channel to shuffle the queue.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
-
-        if (!queue.channel.permissionsFor(member.id)?.has('MuteMembers')) {
-            await interaction.reply({ content: '❌ You do not have permission to shuffle the queue.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        if (!hasConnection || !userInVoiceChannel || !hasPermission || !queue?.channel) return;
 
         queue.enableShuffle();
 

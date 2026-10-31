@@ -4,7 +4,7 @@ import { Player, type GuildQueue } from 'discord-player';
 import { hyperlink, MessageFlags, type CommandInteraction, type SendableChannels } from 'discord.js';
 import { BaseModule } from 'reciple';
 import NowPlayingCommand from './commands/NowPlayingCommand.js';
-import type { Message } from 'discord.js';
+import type { GuildMember, Message, PermissionResolvable } from 'discord.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
 import SkipCommand from './commands/SkipCommand.js';
 import ResumeCommand from './commands/ResumeCommand.js';
@@ -14,6 +14,7 @@ import { YoutubeExtractor } from 'discord-player-youtubei';
 import RepeatCommand from './commands/RepeatCommand.js';
 import UnshuffleCommand from './commands/UnshuffleCommand.js';
 import ShuffleCommand from './commands/ShuffleCommand.js';
+import type { RepliableInteraction } from 'discord.js';
 
 export class EPlayer extends BaseModule {
     private _player!: Player;
@@ -117,6 +118,9 @@ export class EPlayer extends BaseModule {
     }
 
     public async onReady(): Promise<void> {
+        this.player.on('debug', this.logger.debug);
+        this.player.on('error', this.logger.error);
+
         this.player.events.on('playerError', (queue: GuildQueue<QueueMetadata>, error, track) => {
             queue.metadata?.channel?.send(`❌ ${error.message}\n${hyperlink(track.title, track.url)}`);
         });
@@ -157,6 +161,44 @@ export class EPlayer extends BaseModule {
 
         await queue.metadata.nowPlayingMessage.edit(NowPlayingCommand.createNowPlayingMessageComponents({ queue, progressBar: false, controls: 'enabled' }));
     }
+
+    public async checkQueueConnection({ queue, interaction, replyToInteraction }: CheckOptions): Promise<boolean> {
+        if (queue && queue.connection && queue.channel) return true;
+
+        if (replyToInteraction !== false) {
+            await interaction.reply({ content: '❌ There is no active queue in this server.', flags: [MessageFlags.Ephemeral] });
+        }
+
+        return false;
+    }
+
+    public async checkUserInVoiceChannel({ queue, interaction, replyToInteraction, member }: CheckOptions & { member?: GuildMember; }): Promise<boolean> {
+        member ??= interaction.member;
+
+        if (member.voice.channel && queue?.channel && member.voice.channelId == queue.channel?.id) {
+            return true;
+        }
+
+        if (replyToInteraction !== false) {
+            await interaction.reply({ content: '❌ You need to be in a voice channel to use this command.', flags: [MessageFlags.Ephemeral] });
+        }
+
+        return false;
+    }
+
+    public async checkUserHasPermission({ queue, interaction, permission, replyToInteraction }: CheckOptions & { permission: PermissionResolvable; }): Promise<boolean> {
+        const member = interaction.member;
+
+        if (queue?.channel?.permissionsFor(member.id)?.has(permission)) {
+            return true;
+        }
+
+        if (replyToInteraction !== false) {
+            await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: [MessageFlags.Ephemeral] });
+        }
+
+        return false;
+    }
 }
 
 export interface QueueMetadata {
@@ -165,6 +207,12 @@ export interface QueueMetadata {
     nowPlayingMessage: Message|null;
     skipVotes: Set<string>;
     previousVotes: Set<string>;
+}
+
+export interface CheckOptions {
+    queue: GuildQueue<QueueMetadata>|null;
+    interaction: RepliableInteraction<'cached'>;
+    replyToInteraction?: boolean;
 }
 
 export default new EPlayer();

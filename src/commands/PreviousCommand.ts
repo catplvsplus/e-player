@@ -1,6 +1,6 @@
-import { InteractionContextType, MessageFlags } from 'discord.js';
+import { InteractionContextType } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
-import EPlayer, { type QueueMetadata } from '../EPlayer.js';
+import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
 
 export class PreviousCommand extends SlashCommandModule {
@@ -17,20 +17,16 @@ export class PreviousCommand extends SlashCommandModule {
     }
 
     public async previous(interaction: RepliableInteraction<'cached'>): Promise<void> {
-        const queue = EPlayer.player.queues.get<QueueMetadata>(interaction.guildId);
+        const queue = EPlayer.player.queues.get(interaction.guildId);
         const member = interaction.member;
 
-        if (!queue || !queue?.history.previousTrack || !queue.channel) {
-            await interaction.reply({ content: '❌ There is no previous song in the queue.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        const hasConnection = await EPlayer.checkQueueConnection({ queue, interaction });
+        const userInVoiceChannel = await EPlayer.checkUserInVoiceChannel({ queue, interaction });
+        const hasPermission = await EPlayer.checkUserHasPermission({ queue, interaction, permission: 'MuteMembers', replyToInteraction: false });
 
-        if (!member.voice.channel || member.voice.channelId !== queue.channel.id) {
-            await interaction.reply({ content: '❌ You need to be in a voice channel to pause music.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        if (!hasConnection || !userInVoiceChannel || !queue?.channel) return;
 
-        if (!queue.channel.permissionsFor(member.id)?.has('MuteMembers')) {
+        if (!hasPermission) {
             queue.metadata?.previousVotes.add(member.id);
 
             const requiredVotes = Math.ceil(queue.channel.members.filter(m => !m.user.bot).size / 2);
