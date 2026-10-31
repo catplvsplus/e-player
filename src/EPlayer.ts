@@ -1,4 +1,4 @@
-import { DefaultExtractors } from '@discord-player/extractor';
+import { AppleMusicExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
 import type { Logger } from '@prtty/print';
 import { Player, type GuildQueue } from 'discord-player';
 import { hyperlink, MessageFlags, type CommandInteraction, type SendableChannels } from 'discord.js';
@@ -90,8 +90,27 @@ export class EPlayer extends BaseModule {
 
         this._player = new Player(this.client as any);
 
-        await this.player.extractors.register(YoutubeExtractor, {});
-        await this.player.extractors.loadMulti(DefaultExtractors);
+        await this.player.extractors.register(YoutubeExtractor, {
+            cookie: process.env.YOUTUBE_COOKIE,
+            downloads: {
+                ytdlp: {
+                    cookiePath: process.env.YOUTUBE_COOKIE_PATH,
+                }
+            }
+        });
+
+        await this.player.extractors.register(SpotifyExtractor, {
+            clientId: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+        });
+
+        await this.player.extractors.register(AppleMusicExtractor, {});
+
+        await this.player.extractors.register(SoundCloudExtractor, {
+            clientId: process.env.SOUNDCLOUD_CLIENT_ID,
+            oauthToken: process.env.SOUNDCLOUD_OAUTH_TOKEN,
+            proxy: process.env.SOUNDCLOUD_PROXY
+        })
     }
 
     public async onReady(): Promise<void> {

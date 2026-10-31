@@ -1,5 +1,5 @@
 import { QueueRepeatMode } from 'discord-player';
-import { InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
+import { inlineCode, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 
@@ -47,9 +47,10 @@ export class RepeatCommand extends SlashCommandModule {
             return;
         }
 
-        await interaction.reply({ content: `✅ Repeat mode set to ${newMode}.` });
-
         queue.setRepeatMode(newMode);
+
+        await interaction.reply({ content: `✅ Repeat mode set to ${inlineCode(this.getRepeatModeName(newMode))}.` });
+        await EPlayer.updateNowPlayingMessage(queue);
     }
 
     public toggleRepeatMode(mode: QueueRepeatMode): QueueRepeatMode {
@@ -61,6 +62,19 @@ export class RepeatCommand extends SlashCommandModule {
             case QueueRepeatMode.TRACK:
             case QueueRepeatMode.AUTOPLAY:
                 return QueueRepeatMode.OFF;
+        }
+    }
+
+    public getRepeatModeName(mode: QueueRepeatMode): string {
+        switch (mode) {
+            case QueueRepeatMode.OFF:
+                return 'Off';
+            case QueueRepeatMode.TRACK:
+                return 'Track';
+            case QueueRepeatMode.QUEUE:
+                return 'Queue';
+            case QueueRepeatMode.AUTOPLAY:
+                return 'Autoplay';
         }
     }
 }
