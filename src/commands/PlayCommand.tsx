@@ -75,8 +75,10 @@ export class PlayCommand extends SlashCommandModule {
                             nowPlayingMessage: null,
                             skipVotes: new Set<string>(),
                             previousVotes: new Set<string>(),
-                        }
-                    },
+                        },
+                        leaveOnEndCooldown: 60000,
+                        leaveOnEmptyCooldown: 60000
+                    }
                 },
             );
 

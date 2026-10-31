@@ -126,23 +126,28 @@ export class EPlayer extends BaseModule {
         });
 
         this.player.events.on('playerStart', async (queue: GuildQueue<QueueMetadata>) => {
-            const newNowPlayingMessage = await queue.metadata?.channel?.send(NowPlayingCommand.createNowPlayingMessageComponents({ queue, progressBar: false, controls: 'enabled' }));
-
-            queue.metadata.nowPlayingMessage = newNowPlayingMessage ?? null;
+            queue.metadata.nowPlayingMessage = await queue.metadata?.channel?.send(
+                NowPlayingCommand.createNowPlayingMessageComponents({
+                    queue,
+                    progressBar: false,
+                    controls: 'enabled'
+                })
+            ) ?? null;
 
             await this.setVoiceChannelStatus(queue.channel!.id, `🎶 ${queue.currentTrack?.title ?? 'Playing Music'}`);
         });
 
         this.player.events.on('playerFinish', async (queue: GuildQueue<QueueMetadata>) => {
-            await this.setVoiceChannelStatus(queue.channel!.id, "");
-            await queue.metadata?.nowPlayingMessage?.delete().catch(() => null);
+            await this.deleteNowPlayingMessage(queue);
+        });
 
-            queue.metadata.nowPlayingMessage = null;
+        this.player.events.on('emptyQueue', async (queue: GuildQueue<QueueMetadata>) => {
+            await this.setVoiceChannelStatus(queue.channel!.id, null);
         });
 
         this.player.events.on('disconnect', async (queue: GuildQueue<QueueMetadata>) => {
             await queue.metadata?.channel?.send(`⛓️‍💥 Disconnected from voice channel.`);
-            await queue.metadata?.nowPlayingMessage?.delete().catch(() => null);
+            await this.deleteNowPlayingMessage(queue);
         });
 
         this.player.events.on('playerSkip', async (queue: GuildQueue<QueueMetadata>) => {
@@ -170,6 +175,13 @@ export class EPlayer extends BaseModule {
         if (!queue.metadata?.nowPlayingMessage) return;
 
         await queue.metadata.nowPlayingMessage.edit(NowPlayingCommand.createNowPlayingMessageComponents({ queue, progressBar: false, controls: 'enabled' }));
+    }
+
+    public async deleteNowPlayingMessage(queue: GuildQueue<QueueMetadata>): Promise<void> {
+        if (!queue.metadata?.nowPlayingMessage) return;
+
+        await queue.metadata.nowPlayingMessage.delete().catch(() => null);
+        queue.metadata.nowPlayingMessage = null;
     }
 
     public async checkQueueConnection({ queue, interaction, replyToInteraction }: CheckOptions): Promise<boolean> {
@@ -210,14 +222,14 @@ export class EPlayer extends BaseModule {
         return false;
     }
 
-    public async setVoiceChannelStatus(channelId: string, status: string): Promise<boolean> {
+    public async setVoiceChannelStatus(channelId: string, status: string|null): Promise<boolean> {
         const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
             headers: {
                 "accept": "*/*",
                 "authorization": `Bot ${this.client.token}`,
                 "content-type": "application/json"
             },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify({ status: status?.substring(0, 500) }),
             method: "PUT"
         });
 
