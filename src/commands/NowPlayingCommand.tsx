@@ -16,11 +16,10 @@ export class NowPlayingCommand extends SlashCommandModule {
         if (!data.interaction.inCachedGuild()) return;
 
         const queue = EPlayer.player.queues.get(data.interaction.guildId);
+        const hasConnection = EPlayer.checkQueueConnection({ queue, interaction: data.interaction });
+        const isPlaying = EPlayer.checkQueuePlaying({ queue, interaction: data.interaction });
 
-        if (!queue || !queue.currentTrack) {
-            await data.interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
-            return;
-        }
+        if (!hasConnection || !isPlaying || !queue) return;
 
         await data.interaction.reply(this.createNowPlayingMessageComponents({ queue }));
     }

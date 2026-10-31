@@ -1,4 +1,4 @@
-import { InteractionContextType, MessageFlags } from 'discord.js';
+import { Colors, InteractionContextType, MessageFlags } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer, { type QueueMetadata } from '../EPlayer.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
@@ -54,7 +54,10 @@ export class PlayCommand extends SlashCommandModule {
         const member = data.interaction.member;
 
         if (!member.voice.channel) {
-            await data.interaction.reply({ content: '❌ You need to be in a voice channel to play music.', flags: [MessageFlags.Ephemeral] });
+            await data.interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ You need to be in a voice channel to use this command.',
+                color: Colors.Red
+            }));
             return;
         }
 

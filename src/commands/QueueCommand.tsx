@@ -1,4 +1,4 @@
-import { ButtonStyle, ComponentType, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
+import { ButtonStyle, Colors, ComponentType, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer, { type MessageOptions } from '../EPlayer.js';
 import type { Track } from 'discord-player';
@@ -21,7 +21,10 @@ export class QueueCommand extends SlashCommandModule {
         const queue = EPlayer.player.queues.get(interaction.guildId);
 
         if (!queue || queue?.isEmpty()) {
-            await interaction.reply({ content: '❌ There is no song in the queue.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ The queue is currently empty.',
+                color: Colors.Red
+            }));
             return;
         }
 

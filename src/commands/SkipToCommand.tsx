@@ -1,4 +1,4 @@
-import { InteractionContextType, type RepliableInteraction } from 'discord.js';
+import { Colors, InteractionContextType, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
@@ -56,12 +56,18 @@ export class SkipToCommand extends SlashCommandModule {
         if (!hasConnection || !userInVoiceChannel || !hasPermission || !queue) return;
 
         if (!queue || queue.tracks.size <= 1) {
-            await interaction.reply({ content: '❌ There is no active queue to skip to a song in.' });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ There are not enough songs in the queue to skip to a specific position.',
+                color: Colors.Red
+            }));
             return;
         }
 
         if (position < 1 || position > (queue.tracks.size ?? 0)) {
-            await interaction.reply({ content: `❌ Invalid position. Please provide a number between 1 and ${queue.tracks.size ?? 0}.` });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: `❌ Invalid position. Please provide a position between 1 and ${queue.tracks.size}.`,
+                color: Colors.Red
+            }));
             return;
         }
 
@@ -69,7 +75,10 @@ export class SkipToCommand extends SlashCommandModule {
         const track = queue.currentTrack;
 
         if (!skipped || !track) {
-            await interaction.reply({ content: '❌ Unable to skip to the specified position.' });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ Failed to skip to the specified position.',
+                color: Colors.Red
+            }));
             return;
         }
 

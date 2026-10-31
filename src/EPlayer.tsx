@@ -1,13 +1,14 @@
 import { AppleMusicExtractor, AttachmentExtractor, SoundCloudExtractor, SpotifyExtractor } from '@discord-player/extractor';
 import type { Logger } from '@prtty/print';
 import { Player, type GuildQueue } from 'discord-player';
-import { hyperlink, MessageFlags, MessageFlagsBitField, resolveColor, type CommandInteraction, type SendableChannels } from 'discord.js';
+import { MessageFlags, MessageFlagsBitField, resolveColor, type CommandInteraction, type SendableChannels } from 'discord.js';
 import { BaseModule } from 'reciple';
 import NowPlayingCommand from './commands/NowPlayingCommand.js';
 import type { ColorResolvable, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessageEditOptions, MessageFlagsResolvable, MessageReplyOptions, PermissionResolvable } from 'discord.js';
 import { YoutubeExtractor } from 'discord-player-youtubei';
 import type { RepliableInteraction } from 'discord.js';
-import { Container, TextDisplay } from '@reciple/jsx';
+import { Bold, CodeBlock, Container, Hyperlink, TextDisplay } from '@reciple/jsx';
+import { Colors } from 'discord.js';
 
 export class EPlayer extends BaseModule {
     private _player!: Player;
@@ -59,7 +60,10 @@ export class EPlayer extends BaseModule {
         this.player.on('error', this.logger.error);
 
         this.player.events.on('playerError', (queue: GuildQueue<QueueMetadata>, error, track) => {
-            queue.metadata?.channel?.send(`❌ ${error.message}\n${hyperlink(track.title, track.url)}`);
+            queue.metadata?.channel?.send(this.createSimpleContainerMessage({
+                content: `❌ An error occurred while playing the track ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}:\n${<CodeBlock>{error.message}</CodeBlock>}`,
+                color: Colors.Red
+            }));
         });
 
         this.player.events.on('playerStart', async (queue: GuildQueue<QueueMetadata>) => {
@@ -126,7 +130,10 @@ export class EPlayer extends BaseModule {
         if (queue && queue.connection && queue.channel) return true;
 
         if (replyToInteraction !== false) {
-            await interaction.reply({ content: '❌ There is no active queue in this server.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(this.createSimpleContainerMessage({
+                content: '❌ The bot is not connected to a voice channel.',
+                color: Colors.Red
+            }));
         }
 
         return false;
@@ -140,7 +147,10 @@ export class EPlayer extends BaseModule {
         }
 
         if (replyToInteraction !== false) {
-            await interaction.reply({ content: '❌ You need to be in a voice channel to use this command.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(this.createSimpleContainerMessage({
+                content: '❌ You need to be in the same voice channel as the bot to use this command.',
+                color: Colors.Red
+            }));
         }
 
         return false;
@@ -154,7 +164,10 @@ export class EPlayer extends BaseModule {
         }
 
         if (replyToInteraction !== false) {
-            await interaction.reply({ content: '❌ You do not have permission to use this command.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(this.createSimpleContainerMessage({
+                content: `❌ You do not have the required permissions to execute this command.`,
+                color: Colors.Red
+            }));
         }
 
         return false;
@@ -166,7 +179,10 @@ export class EPlayer extends BaseModule {
         }
 
         if (replyToInteraction !== false) {
-            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(this.createSimpleContainerMessage({
+                content: '❌ There is no song currently playing.',
+                color: Colors.Red
+            }));
         }
 
         return false;

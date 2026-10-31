@@ -1,4 +1,4 @@
-import { MessageFlags } from 'discord.js';
+import { Colors } from 'discord.js';
 import { BaseModule } from 'reciple';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
 import SkipCommand from '../commands/SkipCommand.js';
@@ -21,7 +21,10 @@ export class PlayerComponentInteractionEvent extends BaseModule {
                 const queue = EPlayer.player.queues.get<QueueMetadata>(interaction.guildId);
 
                 if (queue?.metadata.nowPlayingMessage?.id !== interaction.message.id) {
-                    await interaction.reply({ content: '❌ This button is not for this queue.', flags: [MessageFlags.Ephemeral] });
+                    await interaction.reply(EPlayer.createSimpleContainerMessage({
+                        content: '❌ This button interaction is no longer valid.',
+                        color: Colors.Red
+                    }));
                     return;
                 }
 
@@ -34,7 +37,10 @@ export class PlayerComponentInteractionEvent extends BaseModule {
                         break;
                     case 'player-toggle-pause':
                         if (!queue || !queue.channel) {
-                            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+                            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                                content: '❌ There is no song currently playing.',
+                                color: Colors.Red
+                            }));
                             return;
                         }
 
@@ -49,7 +55,10 @@ export class PlayerComponentInteractionEvent extends BaseModule {
                         break;
                     case 'player-shuffle':
                         if (!queue || !queue.channel) {
-                            await interaction.reply({ content: '❌ There is no song currently playing.', flags: [MessageFlags.Ephemeral] });
+                            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                                content: '❌ There is no song currently playing.',
+                                color: Colors.Red
+                            }));
                             return;
                         }
 
@@ -60,7 +69,10 @@ export class PlayerComponentInteractionEvent extends BaseModule {
                         }
                         break;
                     default:
-                        await interaction.reply({ content: '❌ Unknown button interaction.', flags: [MessageFlags.Ephemeral] });
+                        await interaction.reply(EPlayer.createSimpleContainerMessage({
+                            content: '❌ Unknown button interaction.',
+                            color: Colors.Red
+                        }));
                         break;
                 }
             })
