@@ -33,6 +33,10 @@ export const client = new Client({
     postconditions: [],
     commands: [],
     cooldownAdapter: CooldownAdapter,
+    allowedMentions: {
+        repliedUser: false,
+        parse: []
+    }
 });
 
 export const config: Config = {
