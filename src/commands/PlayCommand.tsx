@@ -2,6 +2,8 @@ import { InteractionContextType, MessageFlags } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer, { type QueueMetadata } from '../EPlayer.js';
 import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
+import { QueryType } from 'discord-player';
+import { Container, Heading, Hyperlink, LineBreak, Section, SubText, TextDisplay, Thumbnail } from '@reciple/jsx';
 
 export class PlayCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -26,8 +28,8 @@ export class PlayCommand extends SlashCommandModule {
                 const query = interaction.options.getString('query', true);
                 const results = await EPlayer.player
                     .search(query, {
-                        searchEngine: 'youtube',
-                        fallbackSearchEngine: 'auto',
+                        searchEngine: QueryType.YOUTUBE,
+                        fallbackSearchEngine: QueryType.AUTO,
                         requestedBy: interaction.user as any
                     })
                     .catch(() => null);
@@ -63,8 +65,8 @@ export class PlayCommand extends SlashCommandModule {
                 member.voice.channel as any,
                 query,
                 {
-                    searchEngine: 'youtube',
-                    fallbackSearchEngine: 'auto',
+                    searchEngine: QueryType.YOUTUBE,
+                    fallbackSearchEngine: QueryType.AUTO,
                     requestedBy: data.interaction.user as any,
                     nodeOptions: {
                         metadata: {
@@ -78,7 +80,27 @@ export class PlayCommand extends SlashCommandModule {
                 },
             );
 
-            await data.interaction.editReply(`🎵 Added **[${track.title}](<${track.url}>)** to the queue.`);
+            await data.interaction.editReply({
+                flags: [MessageFlags.IsComponentsV2],
+                components: <>
+                    <Container>
+                        <TextDisplay>
+                            <Heading level={2}>Added to queue</Heading>
+                        </TextDisplay>
+                        <Section>
+                            <Thumbnail url={track.thumbnail}/>
+                            <TextDisplay>
+                                <Heading level={3}>
+                                    🎵 <Hyperlink url={track.url}>{track.title}</Hyperlink>
+                                </Heading>
+                                <LineBreak/>
+                                <SubText>{track.author} ∙ Requested by {track.requestedBy}</SubText>
+                                <LineBreak/>
+                            </TextDisplay>
+                        </Section>
+                    </Container>
+                </>
+            });
         } catch (error) {
             await data.interaction.followUp(`❌ ${error}`);
         }
