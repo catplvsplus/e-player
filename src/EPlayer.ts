@@ -126,8 +126,18 @@ export class EPlayer extends BaseModule {
         });
 
         this.player.events.on('playerStart', async (queue: GuildQueue<QueueMetadata>) => {
+            const newNowPlayingMessage = await queue.metadata?.channel?.send(NowPlayingCommand.createNowPlayingMessageComponents({ queue, progressBar: false, controls: 'enabled' }));
+
+            queue.metadata.nowPlayingMessage = newNowPlayingMessage ?? null;
+
+            await this.setVoiceChannelStatus(queue.channel!.id, `🎶 ${queue.currentTrack?.title ?? 'Playing Music'}`);
+        });
+
+        this.player.events.on('playerFinish', async (queue: GuildQueue<QueueMetadata>) => {
+            await this.setVoiceChannelStatus(queue.channel!.id, "");
             await queue.metadata?.nowPlayingMessage?.delete().catch(() => null);
-            queue.metadata.nowPlayingMessage = await queue.metadata?.channel?.send(NowPlayingCommand.createNowPlayingMessageComponents({ queue, progressBar: false, controls: 'enabled' })) ?? null;
+
+            queue.metadata.nowPlayingMessage = null;
         });
 
         this.player.events.on('disconnect', async (queue: GuildQueue<QueueMetadata>) => {
@@ -198,6 +208,25 @@ export class EPlayer extends BaseModule {
         }
 
         return false;
+    }
+
+    public async setVoiceChannelStatus(channelId: string, status: string): Promise<boolean> {
+        const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
+            headers: {
+                "accept": "*/*",
+                "authorization": `Bot ${this.client.token}`,
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({ status }),
+            method: "PUT"
+        });
+
+        if (!response.ok) {
+            this.logger.error(`Failed to set voice channel status for channel ${channelId}: ${response.status} ${response.statusText}`);
+            return false;
+        }
+
+        return true;
     }
 }
 
