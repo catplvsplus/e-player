@@ -1,4 +1,4 @@
-import { InteractionContextType } from 'discord.js';
+import { Colors, InteractionContextType, MessageFlags } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
@@ -30,7 +30,10 @@ export class SkipCommand extends SlashCommandModule {
         const nextTrack = queue.history.nextTrack;
 
         if (!nextTrack) {
-            await interaction.reply({ content: `⏩ No next song in queue to skip to.` });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ There is no next song in the queue.',
+                color: Colors.Red
+            }));
             return;
         }
 
@@ -41,7 +44,13 @@ export class SkipCommand extends SlashCommandModule {
             const currentVotes = queue.metadata?.skipVotes.size ?? 0;
 
             if (currentVotes < requiredVotes) {
-                await interaction.reply({ content: `⏩ ${member.user.username} has voted to skip the current song. (${currentVotes}/${requiredVotes} votes)` });
+                await interaction.reply({ 
+                    ...EPlayer.createSimpleContainerMessage({
+                        content: `⏩ ${member.user.username} has voted to skip the current song. (${currentVotes}/${requiredVotes} votes)`,
+                        color: Colors.Yellow
+                    }),
+                    flags: [MessageFlags.IsComponentsV2]
+                });
                 return;
             }
         }
@@ -49,9 +58,12 @@ export class SkipCommand extends SlashCommandModule {
         EPlayer.clearQueueVotes(queue);
 
         await queue.history.next();
-        await interaction.reply(EPlayer.createSimpleContainerMessage({
-            content: `⏩ Playing next song ${<Bold><Hyperlink url={nextTrack.url}>{nextTrack.title}</Hyperlink></Bold>}`
-        }));
+        await interaction.reply({
+            ...EPlayer.createSimpleContainerMessage({
+                content: `⏩ Playing next song ${<Bold><Hyperlink url={nextTrack.url}>{nextTrack.title}</Hyperlink></Bold>}`
+            }),
+            flags: [MessageFlags.IsComponentsV2]
+        });
     }
 }
 

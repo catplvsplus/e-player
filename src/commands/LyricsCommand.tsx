@@ -64,16 +64,16 @@ export class LyricsCommand extends SlashCommandModule {
 
         collector.on('collect', async i => {
             switch (i.customId) {
-                case 'queue-first':
+                case 'lyrics-first':
                     currentPage = 0;
                     break;
-                case 'queue-previous':
+                case 'lyrics-previous':
                     currentPage = Math.max(currentPage - 1, 0);
                     break;
-                case 'queue-next':
+                case 'lyrics-next':
                     currentPage = Math.min(currentPage + 1, pages.length - 1);
                     break;
-                case 'queue-last':
+                case 'lyrics-last':
                     currentPage = pages.length - 1;
                     break;
             }

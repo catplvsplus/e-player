@@ -1,4 +1,4 @@
-import { InteractionContextType, MessageFlags } from 'discord.js';
+import { Colors, InteractionContextType, MessageFlags } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer from '../EPlayer.js';
 import type { RepliableInteraction } from 'discord.js';
@@ -30,7 +30,10 @@ export class PreviousCommand extends SlashCommandModule {
         const previousTrack = queue.history.previousTrack;
 
         if (!previousTrack) {
-            await interaction.reply({ content: `⏪ There is no previous song in the queue.`, flags: [MessageFlags.Ephemeral] });
+            await interaction.reply(EPlayer.createSimpleContainerMessage({
+                content: '❌ There is no previous song in the queue.',
+                color: Colors.Red
+            }));
             return;
         }
 
@@ -41,7 +44,13 @@ export class PreviousCommand extends SlashCommandModule {
             const currentVotes = queue.metadata?.previousVotes.size ?? 0;
 
             if (currentVotes < requiredVotes) {
-                await interaction.reply({ content: `⏪ ${member.user.username} has voted to play the previous song. (${currentVotes}/${requiredVotes} votes)` });
+                await interaction.reply({
+                    ...EPlayer.createSimpleContainerMessage({
+                        content: `⏪ ${member.user.username} has voted to play the previous song. (${currentVotes}/${requiredVotes} votes)`,
+                        color: Colors.Yellow
+                    }),
+                    flags: [MessageFlags.IsComponentsV2]
+                });
                 return;
             }
         }
@@ -49,9 +58,12 @@ export class PreviousCommand extends SlashCommandModule {
         EPlayer.clearQueueVotes(queue);
 
         await queue.history.previous();
-        await interaction.reply(EPlayer.createSimpleContainerMessage({
-            content: `⏪ Playing previous song ${<Bold><Hyperlink url={previousTrack.url}>{previousTrack.title}</Hyperlink></Bold>}`
-        }));
+        await interaction.reply({
+            ...EPlayer.createSimpleContainerMessage({
+                content: `⏪ Playing previous song ${<Bold><Hyperlink url={previousTrack.url}>{previousTrack.title}</Hyperlink></Bold>}`
+            }),
+            flags: [MessageFlags.IsComponentsV2]
+        });
     }
 }
 
