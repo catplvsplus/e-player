@@ -46,6 +46,8 @@ export class SkipCommand extends SlashCommandModule {
             }
         }
 
+        EPlayer.clearQueueVotes(queue);
+
         await queue.history.next();
         await interaction.reply(EPlayer.createSimpleContainerMessage({
             content: `⏩ Playing next song ${<Bold><Hyperlink url={nextTrack.url}>{nextTrack.title}</Hyperlink></Bold>}`

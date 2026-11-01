@@ -100,10 +100,6 @@ export class EPlayer extends BaseModule {
             await this.deleteNowPlayingMessage(queue);
         });
 
-        this.player.events.on('playerSkip', async (queue: GuildQueue<QueueMetadata>) => {
-            queue.metadata.skipVotes.clear();
-        });
-
         this.player.events.on('playerPause', async (queue: GuildQueue<QueueMetadata>) => {
             await this.updateNowPlayingMessage(queue);
         });
@@ -133,6 +129,11 @@ export class EPlayer extends BaseModule {
 
         await queue.metadata.nowPlayingMessage.delete().catch(() => null);
         queue.metadata.nowPlayingMessage = null;
+    }
+
+    public clearQueueVotes(queue: GuildQueue<QueueMetadata>): void {
+        queue.metadata.skipVotes.clear();
+        queue.metadata.previousVotes.clear();
     }
 
     public async checkQueueConnection({ queue, interaction, replyToInteraction }: CheckOptions): Promise<boolean> {

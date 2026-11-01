@@ -46,6 +46,8 @@ export class PreviousCommand extends SlashCommandModule {
             }
         }
 
+        EPlayer.clearQueueVotes(queue);
+
         await queue.history.previous();
         await interaction.reply(EPlayer.createSimpleContainerMessage({
             content: `⏪ Playing previous song ${<Bold><Hyperlink url={previousTrack.url}>{previousTrack.title}</Hyperlink></Bold>}`

@@ -82,6 +82,8 @@ export class SkipToCommand extends SlashCommandModule {
             return;
         }
 
+        EPlayer.clearQueueVotes(queue);
+
         await interaction.reply(EPlayer.createSimpleContainerMessage({
             content: `⏩ Skipped to ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}`
         }));
