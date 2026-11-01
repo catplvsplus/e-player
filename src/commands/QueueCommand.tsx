@@ -39,7 +39,7 @@ export class QueueCommand extends SlashCommandModule {
 
         let currentPage = 0;
 
-        const message = await interaction.editReply(this.createQueueMessageComponents(pages, currentPage));
+        const message = await interaction.editReply(this.createQueueMessageComponents({ pages, currentPage }));
 
         const collector = message.createMessageComponentCollector({
             componentType: ComponentType.Button,
@@ -63,17 +63,21 @@ export class QueueCommand extends SlashCommandModule {
                     break;
             }
 
-            await i.update(this.createQueueMessageComponents(pages, currentPage));
+            await i.update(this.createQueueMessageComponents({ pages, currentPage }));
 
             collector.resetTimer();
         });
 
         collector.on('end', async () => {
-            await interaction.editReply(this.createQueueMessageComponents(pages, currentPage, true));
+            await interaction.editReply(this.createQueueMessageComponents({
+                pages,
+                currentPage,
+                disabled: true
+            }));
         });
     }
 
-    public createQueueMessageComponents(pages: Track[][], currentPage: number, disabled: boolean = false): MessageOptions {
+    public createQueueMessageComponents({ pages, currentPage, disabled }: QueueMessageComponentsOptions): MessageOptions {
         return {
             flags: [MessageFlags.IsComponentsV2],
             components: <>
@@ -98,6 +102,12 @@ export class QueueCommand extends SlashCommandModule {
             </>
         };
     }
+}
+
+export interface QueueMessageComponentsOptions {
+    pages: Track[][];
+    currentPage: number;
+    disabled?: boolean;
 }
 
 export default new QueueCommand();
