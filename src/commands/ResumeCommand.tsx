@@ -27,7 +27,7 @@ export class ResumeCommand extends SlashCommandModule {
 
         const track = queue.currentTrack!;
 
-        queue.node.pause();
+        queue.node.resume();
 
         await interaction.reply(EPlayer.createSimpleContainerMessage({
             content: `▶️ Resumed ${<Bold><Hyperlink url={track.url}>{track.title}</Hyperlink></Bold>}`
