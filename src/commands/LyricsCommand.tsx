@@ -1,8 +1,8 @@
-import { ButtonStyle, Colors, ComponentType, InteractionContextType, type RepliableInteraction } from 'discord.js';
+import { ButtonStyle, Colors, ComponentType, InteractionContextType, MessageFlags, type RepliableInteraction } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
 import EPlayer, { type MessageOptions } from '../EPlayer.js';
 import type { LrcSearchParams, LrcSearchResult } from 'discord-player';
-import { ActionRow, Button, Container, Heading, Italic, LineBreak, Section, Separator, SubText, TextDisplay } from '@reciple/jsx';
+import { ActionRow, Button, Container, Heading, Italic, LineBreak, Separator, SubText, TextDisplay } from '@reciple/jsx';
 
 export class LyricsCommand extends SlashCommandModule {
     public data = new SlashCommandBuilder()
@@ -96,15 +96,14 @@ export class LyricsCommand extends SlashCommandModule {
         const lyrics = options.pages[options.currentPage];
 
         return {
+            flags: [MessageFlags.IsComponentsV2],
             components: <>
                 <Container>
-                    <Section>
-                        <TextDisplay>
-                            <Heading level={3}>{lyrics.trackName}</Heading>
-                            <LineBreak/>
-                            <SubText>{lyrics.albumName} • {lyrics.artistName}</SubText>
-                        </TextDisplay>
-                    </Section>
+                    <TextDisplay>
+                        <Heading level={3}>{lyrics.trackName}</Heading>
+                        <LineBreak/>
+                        <SubText>{lyrics.albumName} • {lyrics.artistName}</SubText>
+                    </TextDisplay>
                     <Separator/>
                     <TextDisplay>
                         {lyrics.plainLyrics.length > 1997
