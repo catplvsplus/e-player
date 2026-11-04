@@ -87,7 +87,7 @@ export class LyricsCommand extends SlashCommandModule {
             await interaction.editReply(this.createLyricsMessageComponents({
                 pages: pages,
                 currentPage,
-                disabled: false
+                disabled: true
             }));
         });
     }
